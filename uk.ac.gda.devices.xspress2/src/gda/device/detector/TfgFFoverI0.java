@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.factory.Finder;
@@ -36,7 +37,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(TfgFFoverI0.class);
 	private NexusDetector detector = null;
 	private String detectorName;
-	private TfgScaler ct = null;
+	private Detector ct = null;
 	private String ctName;
 	private int i0_channel = 0;
 	private String outputName = "FFI0";
@@ -158,11 +159,11 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		this.detectorName = xspressSystemName;
 	}
 
-	public TfgScaler getCounterTimer() {
+	public Detector getCounterTimer() {
 		return ct;
 	}
 
-	public void setCounterTimer(TfgScaler i0CounterTimer) {
+	public void setCounterTimer(Detector i0CounterTimer) {
 		this.ct = i0CounterTimer;
 	}
 

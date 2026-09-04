@@ -40,7 +40,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0BufferedDetector.class);
 
 	private BufferedDetector qxspress = null;
-	private BufferedScaler qscaler = null;
+	private BufferedDetector qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = true;
 	private int i0_channel = 0;
@@ -187,7 +187,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 	}
 
 
-	public BufferedScaler getQexafsScaler() {
+	public BufferedDetector getQexafsScaler() {
 		return qscaler;
 	}
 
