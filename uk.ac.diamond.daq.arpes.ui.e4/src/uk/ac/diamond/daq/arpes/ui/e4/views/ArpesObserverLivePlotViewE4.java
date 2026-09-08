@@ -1,23 +1,19 @@
 package uk.ac.diamond.daq.arpes.ui.e4.views;
 
-import java.util.Arrays;
-import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.dawnsci.plotting.tools.profile.BoxProfileTool;
 import org.dawnsci.plotting.tools.profile.ProfileTool;
-import org.eclipse.dawnsci.plotting.api.IPlottingService;
-import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.preferences.PlottingConstants;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.Focus;
-import org.eclipse.e4.ui.model.application.ui.basic.MPart;
-import org.eclipse.january.dataset.IDataset;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IActionBars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +29,7 @@ import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
  */
 public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 	private static final Logger logger = LoggerFactory.getLogger(ArpesObserverLivePlotViewE4.class);
-	private IEclipseContext context;
-	private IPlottingService plottingService;
-
-	@Inject
-	MPart myPart;
+	private LiveDataPlotUpdate lastDataUpdate;
 
 	@Inject
 	public ArpesObserverLivePlotViewE4(IEclipseContext context) {
@@ -52,106 +44,11 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 			createPlottingSystem(parent);
 			configureToolbar(parent);
 			addProfileAction(parent, BoxProfileTool.class);
+			addTransposeAction(parent);
 			logger.debug("Successfully created ARPES live plot view");
 		} catch (Exception e) {
 			logger.error(e.toString());
 		}
-	}
-
-	private void validateDependencies() {
-		if (myPart == null) {
-			throw new IllegalStateException("MPart not injected");
-		}
-		plottingService = context.get(IPlottingService.class);
-		if (plottingService == null) {
-			throw new IllegalStateException("IPlottingService not available in context");
-		}
-	}
-
-	private void createPlottingSystem(Composite parent) throws Exception {
-		plottingSystem = plottingService.createPlottingSystem();
-		if (plottingSystem == null) {
-			throw new IllegalStateException("Failed to create plotting system");
-		}
-		// Configure plotting system
-		IActionBars actionBars = plottingSystem.getActionBars();
-		String partLabel = getPartLabel();
-		plottingSystem.createPlotPart(parent, partLabel, actionBars, PlotType.IMAGE, null);
-		plottingSystem.setShowLegend(false);
-		plottingSystem.setTitle(myPart.getLabel());
-		plottingSystem.getSelectedYAxis().setInverted(true);
-		plottingSystem.setKeepAspect(false);
-		logger.debug("Created plotting system with title: {}", partLabel);
-
-	}
-
-	private void configureToolbar(Composite parent) {
-		// Adding DAWN actions to the toolbar as this class does not extend e3 ViewPart
-		// Note this works only if Part is inside PartStack in fragment file!
-		try {
-			Composite toolbarComposite = findToolbarComposite(parent);
-			if (toolbarComposite == null) {
-				logger.warn("Could not find toolbar composite - toolbar actions will not be available");
-				return;
-			}
-			IActionBars actionBars = plottingSystem.getActionBars();
-			if (actionBars == null) {
-				logger.warn("No action bars available from plotting system");
-				return;
-			}
-			// here contributions filled from LightWeightPlotting
-			populateToolbar(toolbarComposite, actionBars.getToolBarManager());
-		} catch (Exception e) {
-			logger.warn("Failed to configure toolbar - continuing without toolbar actions", e);
-		}
-	}
-
-	private Composite findToolbarComposite(Composite parent) {
-		Composite parentComposite = parent.getParent();
-		if (parentComposite == null) {
-			return null;
-		}
-		Control[] children = parentComposite.getChildren();
-		if (children.length == 0) {
-			return null;
-		}
-		// Safely check if first child is a Composite
-		Control firstChild = children[0];
-		return (firstChild instanceof Composite firstChildComposite) ? firstChildComposite : null;
-	}
-
-	private void populateToolbar(Composite toolbarComposite, IToolBarManager toolBarManager) {
-		if (toolBarManager == null) {
-			return;
-		}
-		IContributionItem[] items = toolBarManager.getItems();
-		if (items == null || items.length == 0) {
-			logger.debug("No toolbar items to populate");
-			return;
-		}
-		for (IContributionItem item : items) {
-			try {
-				if (item != null) {
-					item.fill(toolbarComposite);
-				}
-			} catch (Exception e) {
-				logger.warn("Failed to add toolbar item: {}", item, e);
-			}
-		}
-		logger.debug("Added {} toolbar items", items.length);
-	}
-
-	private String getPartLabel() {
-		return (myPart != null && myPart.getLabel() != null) ? myPart.getLabel() : "ARPES Live Plot";
-	}
-
-
-	@Override
-	protected void updatePlot(LiveDataPlotUpdate arg) {
-		List<IDataset> axis = Arrays.asList(arg.getxAxis(), arg.getyAxis());
-		plottingSystem.updatePlot2D(arg.getData(), axis, null);
-		plottingSystem.setKeepAspect(false);
-		plottingSystem.repaint();
 	}
 
 	@Focus
@@ -170,4 +67,36 @@ public class ArpesObserverLivePlotViewE4 extends BaseLivePlotViewE4 {
 	}
 
 
+	private void addTransposeAction(Composite parent) {
+		Action transposeImage = new Action("Transpose", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				transposePreference = isChecked();
+				if (lastDataUpdate!=null) {
+					updatePlot(lastDataUpdate);
+				}
+			}
+		};
+		transposeImage.setId(PlottingConstants.IMAGE_TRANSPOSE_ID);
+		transposeImage.setToolTipText("Swap axes about image origin");
+		transposeImage.setChecked(false);
+		IActionBars actionBars = plottingSystem.getActionBars();
+		IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		toolBarManager.add(transposeImage);
+		ActionContributionItem item = new ActionContributionItem(transposeImage);
+		item.fill(findToolbarComposite(parent));
+		toolBarManager.update(true);
+	}
+
+
+
+	@Override
+	protected void updatePlot(LiveDataPlotUpdate arg) {
+		cacheLastDataUpdate(arg);
+		doUpdate(arg);
+	}
+
+	private void cacheLastDataUpdate(LiveDataPlotUpdate arg) {
+		this.lastDataUpdate = arg;
+	}
 }

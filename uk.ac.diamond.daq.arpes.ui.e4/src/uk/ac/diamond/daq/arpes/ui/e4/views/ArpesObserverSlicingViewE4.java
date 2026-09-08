@@ -178,7 +178,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 			createImageRotationControl(parent);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Failed to create composite: ", e);
 		}
 	}
 
@@ -272,7 +272,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 
 		//make initial dataset [scan_points, analyser_y, analyser_x]
 		logger.info("MakeInitialVolume with total number of points {}", numberOfPoints);
-		volume = DatasetFactory.zeros(numberOfPoints, dataUpdate.getData().getShape()[1], dataUpdate.getData().getShape()[0]);
+		volume = DatasetFactory.zeros(numberOfPoints, dataUpdate.getData().getShape()[0], dataUpdate.getData().getShape()[1]);
 
 
 		//a full slice describing the volume
@@ -290,10 +290,10 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 
 			setUseAspectFromLabel(unitY);
 
-			IDataset yAxis = dataUpdate.getxAxis();
+			IDataset yAxis = dataUpdate.getyAxis();
 			yAxis.setMetadata(unitY);
 
-			IDataset xAxis = dataUpdate.getyAxis();
+			IDataset xAxis = dataUpdate.getxAxis();
 			xAxis.setMetadata(unitX);
 
 			md.addAxis(0, zAxis);
@@ -308,7 +308,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 
 		SliceND s1 = new SliceND(volume.getShape()); // for volume data
 		s1.setSlice(0, 0, 1, 1);
-		volume.setSlice(dataUpdate.getData().getTransposedView(1,0), s1);
+		volume.setSlice(dataUpdate.getData(), s1);
 
 		uiSync.asyncExec(this::resetVolumeDisplay);
 	}
@@ -330,7 +330,7 @@ public class ArpesObserverSlicingViewE4 extends BaseLivePlotViewE4{
 		}
 		SliceND s1 = new SliceND(volume.getShape()); // for volume data
 		s1.setSlice(0, scansCounter.get(), scansCounter.get()+1, 1);
-		volume.setSlice(dataUpdate.getData().getTransposedView(1,0), s1);
+		volume.setSlice(dataUpdate.getData(), s1);
 		uiSync.asyncExec(this::updateVolumeDisplay);
 	}
 
