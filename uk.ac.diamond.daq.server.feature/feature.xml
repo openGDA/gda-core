@@ -176,6 +176,10 @@ http://www.eclipse.org/legal/epl-v10.html
          version="0.0.0"/>
 
    <plugin
+         id="uk.ac.gda.beamline.i24.server.api"
+         version="0.0.0"/>
+
+   <plugin
          id="uk.ac.diamond.daq.beamline.i06-shared"
          version="0.0.0"/>
 
