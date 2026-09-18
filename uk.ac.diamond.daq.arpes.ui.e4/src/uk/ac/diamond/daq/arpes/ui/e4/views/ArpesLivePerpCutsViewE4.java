@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.arpes.ui.e4.views;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -10,14 +11,17 @@ import javax.inject.Inject;
 import org.dawnsci.multidimensional.ui.imagecuts.PerpendicularCutsHelper;
 import org.dawnsci.multidimensional.ui.imagecuts.PerpendicularImageCutsComposite;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
+import org.eclipse.dawnsci.plotting.api.preferences.PlottingConstants;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -26,6 +30,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IActionBars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
@@ -43,8 +48,8 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 	private volatile boolean isSum = false;
 
 	private ImageWithAxes sum; // Guarded by sumLock
+	private LiveDataPlotUpdate lastDataUpdate;
 
-	private final IEclipseContext context;
 
 	@Inject
 	public ArpesLivePerpCutsViewE4(IEclipseContext context) {
@@ -54,6 +59,7 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 	@PostConstruct
 	public void createComposite(Composite parent) {
 		try {
+			validateDependencies();
 			createUIComponents(parent);
 		} catch (Exception e) {
 			logger.error("Failed to create composite", e);
@@ -67,14 +73,18 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 		Composite leftComposite = new Composite(inner, SWT.NONE);
 		leftComposite.setLayout(new GridLayout());
 		// Create button panel
-		Composite buttonPanel = createButtonPanel(leftComposite);
+		createButtonPanel(leftComposite);
+		// Create plotting system
+		createPlottingSystem(leftComposite);
+		// Add some DAWN tools
+		configureToolbar(parent);
 		// Create perpendicular cuts composite
 		PerpendicularImageCutsComposite cutsComposite = createCutsComposite(inner);
-		// Create plotting system
-		createPlottingSystem(leftComposite, cutsComposite);
+		createPerpendicularCutsComposite(cutsComposite);
+		addTransposeAction(parent);
 	}
 
-	private Composite createButtonPanel(Composite parent) {
+	private void createButtonPanel(Composite parent) {
 		Composite buttonPanel = new Composite(parent, SWT.NONE);
 		buttonPanel.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
 		buttonPanel.setLayout(new GridLayout(3, false));
@@ -99,7 +109,6 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 				clearSum();
 			}
 		});
-		return buttonPanel;
 	}
 
 	private PerpendicularImageCutsComposite createCutsComposite(Composite parent) throws Exception {
@@ -113,15 +122,14 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 		return composite;
 	}
 
-	private void createPlottingSystem(Composite parent, PerpendicularImageCutsComposite cutsComposite) throws Exception {
-		IPlottingService plottingService = context.get(IPlottingService.class);
-		plottingSystem = plottingService.createPlottingSystem();
-		plottingSystem.setColorOption(ColorOption.NONE);
-		plottingSystem.createPlotPart(parent, "Detector", null, PlotType.XY, null);
-		plottingSystem.setKeepAspect(false);
-		plottingSystem.repaint();
+	@Override
+	protected void createPlottingSystem(Composite parent) throws Exception {
+		super.createPlottingSystem(parent);
 		plottingSystem.getPlotComposite().setLayoutData(
 			GridDataFactory.fillDefaults().grab(true, true).create());
+	}
+
+	private void createPerpendicularCutsComposite(PerpendicularImageCutsComposite cutsComposite) {
 		PerpendicularCutsHelper helper = new PerpendicularCutsHelper(plottingSystem);
 		helper.activate(cutsComposite);
 	}
@@ -168,14 +176,42 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 			} else {
 				plotData = dataUpdate.getData();
 			}
-			if (plotData != null && plottingSystem != null) {
-				plottingSystem.updatePlot2D(plotData, Arrays.asList(xAxisValues, yAxisValues), null);
-				plottingSystem.setKeepAspect(false);
-				plottingSystem.repaint();
-			}
+			List<IDataset> axes = Arrays.asList(xAxisValues, yAxisValues);
+			cacheLastDataUpdate(plotData, axes);
+			doUpdate(lastDataUpdate);
+
 		} catch (Exception e) {
 			logger.error("Error handling plot update", e);
 		}
+	}
+
+	private void cacheLastDataUpdate(IDataset plotData, List<IDataset>axes) {
+		this.lastDataUpdate = new LiveDataPlotUpdate();
+		lastDataUpdate.setData(plotData);
+		lastDataUpdate.setxAxis(axes.get(0));
+		lastDataUpdate.setyAxis(axes.get(1));
+	}
+
+
+	private void addTransposeAction(Composite parent) {
+		Action transposeImage = new Action("Transpose", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				transposePreference = isChecked();
+				if (lastDataUpdate!=null) {
+					doUpdate(lastDataUpdate);
+				}
+			}
+		};
+		transposeImage.setId(PlottingConstants.IMAGE_TRANSPOSE_ID);
+		transposeImage.setToolTipText("Swap axes about image origin");
+		transposeImage.setChecked(false);
+		IActionBars actionBars = plottingSystem.getActionBars();
+		IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		toolBarManager.add(transposeImage);
+		ActionContributionItem item = new ActionContributionItem(transposeImage);
+		item.fill(findToolbarComposite(parent));
+		toolBarManager.update(true);
 	}
 
 	/**
@@ -206,9 +242,11 @@ public class ArpesLivePerpCutsViewE4 extends BaseLivePlotViewE4{
 		}
 	}
 
+	@Override
 	@PreDestroy
 	public void dispose() {
 		// Clear sum data
 		clearSum();
+		super.dispose();
 	}
 }

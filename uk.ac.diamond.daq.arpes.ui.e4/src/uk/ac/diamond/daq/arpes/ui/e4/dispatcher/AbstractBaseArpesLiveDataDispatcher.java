@@ -103,11 +103,10 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			}
 			IDataset xAxis = getXAxis();
 			IDataset yAxis = getYAxis();
-			// E4 view get it somehow transposed
-			IDataset data = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]).getTransposedView(1,0);
+			IDataset data = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
 			dataUpdate.resetLiveDataUpdate();
-			dataUpdate.setxAxis(yAxis);
-			dataUpdate.setyAxis(xAxis);
+			dataUpdate.setxAxis(xAxis);
+			dataUpdate.setyAxis(yAxis);
 			dataUpdate.setAcquisitionMode(acquisitionMode);
 			updateNumExposure();// NumExposures change lags fraction of millisecond behind ArrayCounter - pull manually
 			emitNewData(data);
