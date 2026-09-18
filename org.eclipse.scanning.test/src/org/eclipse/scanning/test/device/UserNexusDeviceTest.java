@@ -55,7 +55,6 @@ public class UserNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXuser>
 
 	@Override
 	protected void checkNexusObject(NXuser user) throws Exception {
-		assertThat(user.getFacility_user_idScalar(), is(equalTo(USER_ID)));
 		assertThat(user.getNameScalar(), is(equalTo(USER_NAME)));
 	}
 

@@ -58,7 +58,6 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 	}
 
 	private static final String UNKNOWN_USER_NAME = "Unknown user";
-	private static final String UNKNOWN_USER_ID = "unknown";
 
 	@Override
 	protected NXuser createNexusObject(NexusScanInfo info) throws NexusException {
@@ -67,10 +66,8 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 		final IBatonStateProvider batonProvider = InterfaceProvider.getBatonStateProvider();
 		// If the baton is not held by anyone then getBatonHolder returns null
 		final Optional<ClientDetails> userDetails = Optional.ofNullable(batonProvider.getBatonHolder());
-		final String userId = userDetails.map(ClientDetails::getUserID).orElse(UNKNOWN_USER_ID);
 		final String userFullName = userDetails.map(ClientDetails::getFullName).orElse(UNKNOWN_USER_NAME);
 
-		userGroup.setFacility_user_idScalar(userId);
 		userGroup.setNameScalar(userFullName);
 
 		return userGroup;

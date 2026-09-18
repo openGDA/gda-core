@@ -362,6 +362,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
+	protected static final String METADATA_KEY_USER_NAME = "name";
 	protected static final String METADATA_KEY_VISIT_ID = "visit";
 	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
 
@@ -476,6 +477,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected void setUpMetadata() throws Exception {
 		addMetadataEntry(METADATA_KEY_FEDERAL_ID, EXPECTED_USER_ID);
+		addMetadataEntry(METADATA_KEY_USER_NAME, EXPECTED_USER_NAME);
 		addMetadataEntry(METADATA_KEY_VISIT_ID, EXPECTED_VISIT_ID);
 	}
 
