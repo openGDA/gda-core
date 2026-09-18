@@ -637,8 +637,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
 		assertThat(user, is(notNullValue()));
 
-		assertThat(user.getDataNodeNames(), containsInAnyOrder(NXuser.NX_FACILITY_USER_ID, NXuser.NX_NAME));
-		assertThat(user.getFacility_user_idScalar(), is(equalTo(EXPECTED_USER_ID)));
+		assertThat(user.getDataNodeNames(), containsInAnyOrder(NXuser.NX_NAME));
 		assertThat(user.getNameScalar(), is(equalTo(EXPECTED_USER_NAME)));
 	}
 
