@@ -208,7 +208,7 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 	public void setIterations(int value) {
 		try {
 			requestedIterations = value;
-			controller.setIterations(1);
+			controller.setIterations(value);
 		} catch (Exception e) {
 			final String msg = "Error setting itterations to: " + value;
 			logger.error(msg, e);
