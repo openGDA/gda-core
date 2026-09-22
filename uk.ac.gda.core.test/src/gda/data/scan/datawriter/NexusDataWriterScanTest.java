@@ -98,7 +98,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final int[] METADATA_DATASET_SHAPE = new int[] { 1 };
 
-	private static final String FIELD_NAME_USER_NAME = "username";
+	private static final String FIELD_NAME_USER_NAME = "name";
 	private static final String GROUP_NAME_DEFAULT = "default";
 
 	private static final String ATTRIBUTE_NAME_AXIS = "axis";
@@ -535,7 +535,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
 		assertThat(user, is(notNullValue()));
 		assertThat(user.getDataNodeNames(), contains(FIELD_NAME_USER_NAME));
-		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_ID)));
+		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_NAME)));
 	}
 
 }

@@ -38,6 +38,7 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.util.Version;
+import uk.ac.diamond.daq.linux.UserUtilities;
 
 /**
  * Utility methods for dealing with NeXus files.
@@ -229,7 +230,14 @@ public class NeXusUtils {
 		// TODO At the moment we will use the old implementation. Need to get a list of users from the ICAT.
 		group = file.getGroup(group, "user01", "NXuser", true);
 
-		NexusUtils.writeString(file, group, "username", metadata.getMetadataValue("federalid"));
+		String fedid = metadata.getMetadataValue("federalid");
+		String fullNameOfUser = UserUtilities.getFullNameOfUser(fedid);
+		//gda-native library call will return fedid itself in tests where the fedid is not real one.
+		if (fullNameOfUser.contentEquals(fedid)) {
+			NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("name"));
+		} else {
+			NexusUtils.writeString(file, group, "name", fullNameOfUser);
+		}
 	}
 
 	/**
