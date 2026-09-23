@@ -449,7 +449,7 @@ public class SpecsPhoibosSolsticeCollectionStrategy extends AbstractWriteRegions
 
 	@Override
 	public void setSequence(SpecsPhoibosSequence sequence) {
-		this.sequence = new SpecsPhoibosSequence(sequence);
+		this.sequence = (sequence == null)? null: new SpecsPhoibosSequence(sequence);
 	}
 
 	@Override
