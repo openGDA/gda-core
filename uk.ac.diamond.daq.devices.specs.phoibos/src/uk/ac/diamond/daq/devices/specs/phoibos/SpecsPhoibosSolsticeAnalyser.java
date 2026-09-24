@@ -207,7 +207,6 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 
 	public void setIterations(int value) {
 		try {
-			requestedIterations = value;
 			controller.setIterations(value);
 		} catch (Exception e) {
 			final String msg = "Error setting itterations to: " + value;
@@ -218,6 +217,21 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 
 	@Override
 	public int getIterations() {
+		try {
+			return controller.getIterations();
+		} catch (Exception e) {
+			final String msg = "Error getting itterations";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
+	protected void setRequestedIterations(int value) {
+		this.requestedIterations = value;
+	}
+
+	@Override
+	public int getRequestedIterations() {
 		return requestedIterations;
 	}
 
@@ -583,14 +597,16 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 		setValues(region.getValues());
 
 		// Statistics settings
-		setIterations(region.getIterations());
+		setRequestedIterations(region.getIterations());
+		// iterations are handled in a collection strategy loop
+		setIterations(1);
 		setExposureTime(region.getExposureTime());
 		logger.trace("Finished configuring region: {}", region);
 	}
 
 	@Override
 	public SpecsPhoibosRegion getRegion() {
-		logger.info("Getting region from analyser");
+		logger.info("Getting region from analyser EPICS!");
 
 		SpecsPhoibosRegion region = new SpecsPhoibosRegion();
 
@@ -599,6 +615,8 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 		region.setAcquisitionMode(getAcquisitionMode());
 		region.setEndEnergy(getHighEnergy());
 		region.setExposureTime(getExposureTime());
+		// read iterations from Epics (say, N) but then collectionStrategy will still
+		// set iterations to 1 in Epics and make an internal loop N times 1 iteration
 		region.setIterations(getIterations());
 		region.setLensMode(getLensMode());
 		region.setPassEnergy(getPassEnergy());
@@ -949,7 +967,7 @@ public class SpecsPhoibosSolsticeAnalyser extends AbstractWriteRegionsImmediatel
 
 	public int getTotalPoints() {
 		try {
-			return controller.getTotalPoints() * getIterations();
+			return controller.getTotalPoints() * getRequestedIterations();
 		} catch (Exception e) {
 			final String msg = "Error getting total points";
 			logger.error(msg, e);

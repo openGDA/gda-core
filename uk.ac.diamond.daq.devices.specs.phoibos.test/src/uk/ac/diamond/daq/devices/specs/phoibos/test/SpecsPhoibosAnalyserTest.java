@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.devices.specs.phoibos.test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -21,6 +22,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosCollectionStrategy;
 import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosController;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 
 public class SpecsPhoibosAnalyserTest {
@@ -137,6 +139,10 @@ public class SpecsPhoibosAnalyserTest {
 	public void testLoadingSequenceFromAbsolutePath() {
 		String sequencePath = new File("testfiles/test_sequence.seq").getAbsolutePath();
 		analyser.setSequenceFile(sequencePath);
+		assertEquals(sequencePath,analyser.getSequenceFile());
+		SpecsPhoibosSequence expectedSequence = SpecsPhoibosSequenceHelper.loadSequence(sequencePath);
+		SpecsPhoibosCollectionStrategy cs = (SpecsPhoibosCollectionStrategy)analyser.getCollectionStrategy();
+		assertEquals(cs.getSequence(),expectedSequence);
 	}
 
 	@Test
@@ -148,7 +154,6 @@ public class SpecsPhoibosAnalyserTest {
 		when(controller.getScanValidityStatus()).thenReturn("NO_ALARM");
 		SpecsPhoibosSequenceValidation validationErrors = analyser.validateSequence(sequence);
 		assertTrue(validationErrors.isValid());
-
 	}
 
 	@Test
@@ -160,7 +165,26 @@ public class SpecsPhoibosAnalyserTest {
 		when(controller.getScanValidityStatus()).thenReturn("INVALID");
 		SpecsPhoibosSequenceValidation validationErrors = analyser.validateSequence(sequence);
 		assertFalse(validationErrors.isValid());
-
 	}
 
+	@Test
+	public void testSetIterationsCallsControllerSameValue() throws Exception {
+		int iterations = 10;
+		SpecsPhoibosRegion region = new SpecsPhoibosRegion();
+		region.setIterations(iterations);
+		analyser.setRegion(region);
+		verify(controller, times(1)).setIterations(iterations);
+	}
+
+	@Test
+	public void testGetIterationCallsController() throws Exception {
+		analyser.getIterations();
+		verify(controller, times(1)).getIterations();
+	}
+
+	@Test
+	public void testGetRequestedIterationCallsController() throws Exception {
+		analyser.getRequestedIterations();
+		verify(controller, times(1)).getIterations();
+	}
 }

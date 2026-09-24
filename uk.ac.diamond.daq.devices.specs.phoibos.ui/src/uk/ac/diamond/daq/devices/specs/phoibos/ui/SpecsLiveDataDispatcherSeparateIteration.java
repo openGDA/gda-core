@@ -44,7 +44,7 @@ public class SpecsLiveDataDispatcherSeparateIteration extends SpecsLiveDataDispa
 	@Override
 	protected void getIntialValues() {
 		super.getIntialValues();
-		requestedIterations = analyser.getIterations();
+		requestedIterations = analyser.getRequestedIterations();
 		currentIteration = analyser.getCurrentIteration();
 	}
 

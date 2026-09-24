@@ -196,6 +196,9 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable, IAnalyserS
 	void disablePrelensValveCheck();
 
 	int getIterations();
+	default int getRequestedIterations() {
+		return getIterations();
+	}
 	int getCurrentIteration();
 	String getCurrentRegionName();
 	String getCurrentPositionString();
