@@ -18,6 +18,13 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.NDStatsGroup;
 import gda.device.detector.areadetector.NDStatsGroupFactory;
@@ -27,14 +34,9 @@ import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NonAsynchronousNXPlugin;
 import gda.scan.ScanInformation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ADBasicStats implements NonAsynchronousNXPlugin {
+
+	private static final String BASIC_STATS_NAME = "basicstats";
 
 	private static Logger logger = LoggerFactory.getLogger(ADBasicStats.class);
 
@@ -47,6 +49,8 @@ public class ADBasicStats implements NonAsynchronousNXPlugin {
 	private boolean computeStats = false;
 
 	private boolean computeCentroid = false;
+
+	private String name = BASIC_STATS_NAME;
 
 	public ADBasicStats(NDStats ndStats) {
 		this.ndStats = ndStats;
@@ -74,9 +78,13 @@ public class ADBasicStats implements NonAsynchronousNXPlugin {
 		this.computeCentroid = computeCentroid;
 	}
 
+	public void setName(String name){
+		this.name = name;
+	}
+
 	@Override
 	public String getName() {
-		return "basicstats";
+		return name;
 	}
 
 	@Override
