@@ -29,6 +29,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.LiveDataPlotUpdate;
@@ -55,7 +56,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	// set in spring xml configuration
 	protected String arrayPV;
 	protected String frameNumberPV;
-	protected String numExposuresPV;
 
 	protected AnalyserPVConfig analyserPVConfig;
 
@@ -65,8 +65,9 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 	/** Implement this method in child classes */
 	protected abstract void emitNewData(IDataset data) throws TimeoutException, CAException, InterruptedException;
 
-	/** Implement this method in child classes */
-	protected abstract void updateNumExposure();
+	/** Implement this method in child classes
+	 * @param frame */
+	protected abstract void updateNumExposure(long frame);
 
 	@Override
 	public void configure() throws FactoryException {
@@ -78,9 +79,14 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			// when this channel fires we need to get image
 			epicsController.setMonitor(getChannel(frameNumberPV), evt -> {
 				try {
-					executor.submit(this::prepareNewData); // use executor otherwise channel not connected errors
+					long frame = ((DBR_Int) evt.getDBR()).getIntValue()[0];
+					// ignore frames with number 0 - no data, means start of new image.
+					if (frame>0) {
+						// use executor otherwise channel not connected errors
+						executor.submit(() -> prepareNewData(frame));
+					}
 				} catch (RejectedExecutionException ree) {
-					logger.trace("Exception for rejected execution", ree);
+					logger.debug("Exception for rejected execution", ree);
 				}
 			});
 			// set monitor on acquisition mode - need manufacturer as Scienta AcqMode enums
@@ -93,7 +99,7 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		setConfigured(true);
 	}
 
-	protected void prepareNewData() {
+	protected void prepareNewData(long frame) {
 	// ASSUMPTION: IOC processes numExposuresPV slightly after frameNumberPV updates propagate.
 	// If IOC record processing order changes, this synchronous read may return
 	// a stale value. See I05-782.
@@ -108,7 +114,7 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 			dataUpdate.setxAxis(xAxis);
 			dataUpdate.setyAxis(yAxis);
 			dataUpdate.setAcquisitionMode(acquisitionMode);
-			updateNumExposure();// NumExposures change lags fraction of millisecond behind ArrayCounter - pull manually
+			updateNumExposure(frame);// NumExposures change lags fraction of millisecond behind ArrayCounter - pull manually
 			emitNewData(data);
 		} catch (Exception e) {
 			logger.error("Failed to prepare/send LiveDataPlotUpdate ", e);
@@ -126,10 +132,9 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 		getAnalyserAcquisitionModePv();
 		// create channel for images
 		getChannel(arrayPV);
-		getChannel(numExposuresPV);
 		getChannel(frameNumberPV);
-		if ((arrayPV==null) || (frameNumberPV==null) || (numExposuresPV==null)) {
-			throw new FactoryException("arrayPV, frameNumberPV and numExposuresPV must be all set in spring xml!");
+		if ((arrayPV==null) || (frameNumberPV==null)) {
+			throw new FactoryException("arrayPV, frameNumberPV must be set in spring xml!");
 			}
 	}
 
@@ -205,14 +210,6 @@ public abstract class AbstractBaseArpesLiveDataDispatcher extends FindableConfig
 
 	public AnalyserPVConfig getAnalyserPVConfig() {
 		return analyserPVConfig;
-	}
-
-	public String getNumExposuresPV() {
-		return numExposuresPV;
-	}
-
-	public void setNumExposuresPV(String numExposuresPV) {
-		this.numExposuresPV = numExposuresPV;
 	}
 
 	public void setAnalyserPVConfig(AnalyserPVConfig analyserPVConfig) {
