@@ -179,7 +179,9 @@ public class NcdTetrammDetector extends NcdSubDetector {
 			this.timer.deleteIObserver(handleUpdate);
 		}
 		this.timer = timer;
-		timer.addIObserver(handleUpdate);
+		if (this.timer != null) {
+			timer.addIObserver(handleUpdate);
+		}
 	}
 
 	public void updateFrames(Collection<FrameSet> frames) {
