@@ -42,6 +42,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
@@ -140,5 +141,9 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	public double getSelectedEnergy() {
 		final EdgeToEnergy selection = (EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement();
 		return selection == null ? 0.0 : selection.getEnergy();
+	}
+
+	public Combo getCombo() {
+		return elementsAndEdgeCombo.getCombo();
 	}
 }

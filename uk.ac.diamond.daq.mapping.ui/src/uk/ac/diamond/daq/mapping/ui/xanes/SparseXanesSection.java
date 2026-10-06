@@ -54,5 +54,6 @@ public class SparseXanesSection extends XanesParametersSection {
 		spinner.addModifyListener(e -> xanesParameters.getSparseParameters().setPercentage(spinner.getSelection()));
 		spinner.setSelection(xanesParameters.getSparseParameters().getPercentage());
 		spinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		setMouseScrollListener(spinner);
 	}
 }
