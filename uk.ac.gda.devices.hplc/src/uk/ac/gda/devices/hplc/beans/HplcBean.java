@@ -21,7 +21,8 @@ public class HplcBean extends ExperimentBean {
 	private String buffers = "";
 	private String mode = DEFAULT_HPLC_MODE;
 	private double totalDuration = 100;
-	private String columnType = "";
+	private String column1Type = "";
+	private String column2Type = "";
 
 	public String getSampleName() {
 		return sampleName;
@@ -78,10 +79,16 @@ public class HplcBean extends ExperimentBean {
 	public void setTotalDuration(double totalDuration) {
 		this.totalDuration = totalDuration;
 	}
-	public String getColumnType() {
-		return columnType;
+	public String getColumn1Type() {
+		return column1Type;
 	}
-	public void setColumnType(String value) {
-		columnType = value;
+	public void setColumn1Type(String value) {
+		column1Type = value;
+	}
+	public String getColumn2Type() {
+		return column2Type;
+	}
+	public void setColumn2Type(String value) {
+		column2Type = value;
 	}
 }
