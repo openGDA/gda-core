@@ -18,6 +18,7 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
+import gda.device.Detector;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -30,12 +31,16 @@ public class SoftwareStartDoNotForceStop extends SoftwareStartStop {
 	@Override
 	protected void rawCompleteCollection() throws Exception {
 		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		jythonServerFacade.print(String.format("Cannot abort detector mid acquisition, instead waiting %d seconds for acquisition to finish", timeoutSeconds));
-		try {
-			getAdBase().waitForDetectorStateIDLE(timeoutSeconds);
-		} catch (Exception e) {
-			jythonServerFacade.print(String.format("Detector did not stop after %d seconds. Aborting mid collection, this will likely kill the IOC", timeoutSeconds));
-			getAdBase().stopAcquiring();
+		if (getAdBase().getAcquireState() == Detector.BUSY) {
+			jythonServerFacade.print(String.format("Cannot abort detector mid acquisition, instead waiting %d seconds for acquisition to finish", timeoutSeconds));
+			try {
+				getAdBase().waitForDetectorStateIDLE(timeoutSeconds);
+			} catch (java.util.concurrent.TimeoutException e) {
+				jythonServerFacade.print(String.format("Detector did not stop after %d seconds. Aborting mid collection, this will likely kill the IOC", timeoutSeconds));
+				getAdBase().stopAcquiring();
+			}
+		} else {
+			jythonServerFacade.print(String.format("Detector in state %d, not stopping", getAdBase().getAcquireState()));
 		}
 	}
 
