@@ -29,14 +29,15 @@ import gda.device.EnumPositioner;
 import gda.factory.FindableBase;
 
 public class PlateConfig extends FindableBase implements Serializable {
+	private static final Logger logger = LoggerFactory.getLogger(PlateConfig.class);
+
+
 	private static final long serialVersionUID = 6948031255054246852L;
 	private List<Plate> plates;
 	private String[] defaultAvailableCapillaries;
 	private EnumPositioner viciValve1;
 	private EnumPositioner viciValve2;
 	private boolean useEpicsValves;
-	
-	private static final Logger logger = LoggerFactory.getLogger(PlateConfig.class);
 
 	public List<Plate> getPlates() {
 		return plates;
