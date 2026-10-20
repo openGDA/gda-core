@@ -315,7 +315,20 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			}
 			timeoutDataWriterPeriod.putWait(fileWritingTimeout, eiger_timeout);
 			startDataWriter.putNoWait(1);
-			odinInitialised.waitForValue(ACTIVE::equals, eiger_timeout);
+			var waitTime = 200.0f;
+			var iterations = eiger_timeout / (waitTime / 1000);
+			var finished = false;
+			for (int i = 0; i < iterations; i++) {
+				Thread.sleep((int) waitTime);
+				if (odinInitialised.get().equals(ACTIVE)) {
+					finished = true;
+					break;
+				}
+			}
+			if (!finished) {
+				throw new TimeoutException("Timed out waiting on odin initialise");
+			}
+			//odinInitialised.waitForValue(ACTIVE::equals, eiger_timeout);
 		} catch (IOException e) {
 			throw new DeviceException("Couldn't start eiger data writers", e);
 		} catch (InterruptedException e) {
