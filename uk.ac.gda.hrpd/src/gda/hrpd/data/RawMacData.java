@@ -139,16 +139,22 @@ public class RawMacData {
 		return new RawMacData(null, fields, newHeaders, other.positions, newData);
 	}
 
-	public void write(String file) throws IOException {
-		try (var wr = new FileWriter(new File(file))) {
-			wr.write("&DLS\n");
+	private void writeHeader(String file) throws IOException {
+		try (var writer = new FileWriter(new File(file))) {
+			writer.write("&DLS\n");
 			for (var entry: headers.entrySet()) {
-				wr.write(entry.getKey());
-				wr.write('=');
-				wr.write(entry.getValue());
-				wr.write('\n');
+				writer.write(entry.getKey());
+				writer.write('=');
+				writer.write(entry.getValue());
+				writer.write('\n');
 			}
-			wr.write("&END\n");
+			writer.write("&END\n");
+		}
+	}
+
+
+	private void write(String file) throws IOException {
+		try (var wr = new FileWriter(new File(file))) {
 			wr.write(String.join("\t", fields));
 			wr.write('\n');
 			for (var i = 0; i<data.size(); i++) {
@@ -162,9 +168,10 @@ public class RawMacData {
 		}
 	}
 
-	public Optional<IOException> tryWrite(String filename) {
+	public Optional<IOException> tryWrite(String filename, String headerFilename) {
 		try {
 			write(filename);
+			writeHeader(headerFilename);
 			return Optional.empty();
 		} catch (IOException e) {
 			return Optional.of(e);
