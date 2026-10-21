@@ -145,6 +145,7 @@ public class MonitorViewer {
 
 			// get the list of monitor from the server and sort them
 			final List<String> monitorNames = new ArrayList<>(scannableDeviceService.getScannableNames());
+			logger.info("Monitor view got scannables: {}", monitorNames);
 			monitorNames.sort(new SortNatural<>(false));
 
 			// convert the list of names to a list of monitor items, restoring the items to
