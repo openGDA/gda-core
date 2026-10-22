@@ -152,13 +152,18 @@ public class ProcessedMacData {
 		return new ProcessedMacData(null, newHeaders, tth, newCounts, newError);
 	}
 
-	public void write(String file) throws IOException {
-		try (var wr = new Formatter(new File(file))) {
-			wr.format("&DLS%n");
+	private void writeHeader(String file) throws IOException {
+		try (var writer = new Formatter(new File(file))) {
+			writer.format("&DLS%n");
 			for (var entry: headers.entrySet()) {
-				wr.format("%s=%s%n", entry.getKey(), entry.getValue());
+				writer.format("%s=%s%n", entry.getKey(), entry.getValue());
 			}
-			wr.format("&END%n");
+			writer.format("&END%n");
+		}
+	}
+
+	private void write(String file) throws IOException {
+		try (var wr = new Formatter(new File(file))) {
 			wr.format("tth\tcounts\terror%n");
 			for (var i = 0; i < EXPECTED_ROWS; i++) {
 				wr.format("%.3f\t%.3f\t%.3f%n", tth[i], counts[i], error[i]);
@@ -166,9 +171,10 @@ public class ProcessedMacData {
 		}
 	}
 
-	public Optional<IOException> tryWrite(String filename) {
+	public Optional<IOException> tryWrite(String filename, String headerFilename) {
 		try {
 			write(filename);
+			writeHeader(headerFilename);
 			return Optional.empty();
 		} catch (IOException e) {
 			return Optional.of(e);

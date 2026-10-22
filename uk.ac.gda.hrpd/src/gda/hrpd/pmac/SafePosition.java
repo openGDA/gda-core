@@ -24,11 +24,12 @@ import gda.factory.FindableBase;
 
 /**
  * This data object defines the safe position to park a device when it is not in use while operating other devices around it.
+ * It assumes that to be safe the motor has to be within tolerance of the specified position.
  * It is used to store configurable positions for safe operation of devices on beamline so collision avoidance logic can be implemented elsewhere.
  */
 public class SafePosition extends FindableBase implements Predicate<Double> {
-	private double requiredPosition;
-	private double tolerance;
+	protected double requiredPosition;
+	protected double tolerance;
 
 	@Override
 	public boolean test(Double t) {

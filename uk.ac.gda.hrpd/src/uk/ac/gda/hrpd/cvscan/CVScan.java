@@ -142,6 +142,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	@Override
 	public void rawAsynchronousMoveTo(Object time) throws DeviceException {
+		this.totaltime = Double.valueOf(time.toString()).doubleValue();
 		checkForCollision();
 		if (!isGDAScanning) {
 			collectionNumber = 1;
@@ -160,7 +161,6 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		}
 		pausedCounter = 0; // initialise counter for paused flag for this cvscan
 		rawDataSaved.set(false);
-		this.totaltime = Double.valueOf(time.toString()).doubleValue();
 		try {
 			controller.setTime(totaltime);
 		} catch (Exception e1) {
@@ -357,35 +357,42 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			var name = getDataWriter().getCurrentFileName();
 			var rawExt = LocalProperties.get(RAW_EXTENSION_PROPERTY, "raw");
 			var procExt = LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat");
-			var summedRawFilename = String.format("%s-summed.%s", name, rawExt);
-			var summedProcessedFilename = String.format("%s-summed.%s", name, procExt);
+			var summedRawFilepath = Paths.get(dir, String.format("%s-summed.%s", name, rawExt)).toString();
+			var summedProcessedFilepath = Paths.get(dir, String.format("%s-summed.%s", name, procExt)).toString();
+			var headerRawFilepath = Paths.get(dir, String.format("%s-header.%s", name, rawExt)).toString();
+			var headerProcessedFilepath = Paths.get(dir, String.format("%s-header.%s", name, procExt)).toString();
+
+			var colelctionTimeString =  String.format("%dx%d", finalCollectionNumber, totaltime);
+
 			Async.submit(() -> {
-				logger.debug("Writing summed raw data to {}", summedRawFilename);
+				logger.debug("Writing summed raw data to {}", summedRawFilepath);
+				logger.debug("Writing summed raw data header to {}", headerRawFilepath);
 				// collection number is incremented at the end of each point so is
 				// exclusive range includes all files
 				IntStream.range(1, finalCollectionNumber)
-						.mapToObj(i -> buildFilename(dir, name, i, rawExt))
+						.mapToObj(i -> buildFilename(dir, name, i, colelctionTimeString, rawExt))
 						.map(RawMacData::readFile)
 						// If both are present, add them, else empty
 						.reduce((l, r) -> l.flatMap(lv -> r.map(lv::add)))
 						.ifPresent(d -> d.ifPresentOrElse(
-								f -> f.tryWrite(Paths.get(dir, summedRawFilename).toString())
+								f -> f.tryWrite(summedRawFilepath, headerRawFilepath)
 										.ifPresent(e -> logger.error("Error writing summed raw MAC data", e)),
 								() -> logger.error("Failed to read all raw MAC data")
 						));
 			}).onFailure(t -> logger.error("Error in background raw data summing task", t));
 
 			Async.submit(() -> {
-				logger.debug("Writing summed processed data to {}", summedProcessedFilename);
+				logger.debug("Writing summed processed data to {}", summedProcessedFilepath);
+				logger.debug("Writing summed processed data header to {}", headerProcessedFilepath);
 				// collection number is incremented at the end of each point so is
 				// exclusive range includes all files
 				IntStream.range(1, finalCollectionNumber)
-						.mapToObj(i -> buildFilename(dir, name, i, procExt))
+						.mapToObj(i -> buildFilename(dir, name, i, colelctionTimeString, procExt))
 						.map(ProcessedMacData::readFile)
 						// If both are present, add them, else empty
 						.reduce((l, r) -> l.flatMap(lv -> r.map(lv::add)))
 						.ifPresent(d -> d.ifPresentOrElse(
-								f -> f.tryWrite(Paths.get(dir, summedProcessedFilename).toString())
+								f -> f.tryWrite(summedProcessedFilepath, headerProcessedFilepath)
 										.ifPresent(e -> logger.error("Error writing summed processed MAC data", e)),
 								() -> logger.error("Failed to read all processed MAC data")
 						));
@@ -422,7 +429,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	// hack to satisfy scan framework requirement
 	private void filesToWriteTo() {
 		rebinnedfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat"));
+				collectionNumber, String.valueOf(totaltime), LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat"));
 	}
 
 	/*
@@ -430,10 +437,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 */
 	private void createFilesToWriteTo() {
 		rawfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get(RAW_EXTENSION_PROPERTY, "raw"));
+				collectionNumber, String.valueOf(totaltime), LocalProperties.get(RAW_EXTENSION_PROPERTY, "raw"));
 		InterfaceProvider.getTerminalPrinter().print("Raw data will be saved to file: " + rawfile.getAbsolutePath());
 		rebinnedfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat"));
+				collectionNumber, String.valueOf(totaltime), LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat"));
 		InterfaceProvider.getTerminalPrinter().print(
 				"Rebinned data will be saved to file: " + rebinnedfile.getAbsolutePath());
 		InterfaceProvider.getTerminalPrinter().print("When constant velocity scan completed successfully.");
@@ -631,12 +638,12 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		}
 	}
 
-	private String buildFilename(String dir, String filename, long collectionNumber, String ext) {
-		return buildFile(dir, filename, collectionNumber, ext).getPath();
+	private String buildFilename(String dir, String filename, long collectionNumber, String collectionTime, String ext) {
+		return buildFile(dir, filename, collectionNumber, collectionTime, ext).getPath();
 	}
 
-	private File buildFile(String dir, String filename, long collectionNumber, String ext) {
-		String fullFileName = String.format("%s-%03d.%s", filename, collectionNumber, ext);
+	private File buildFile(String dir, String filename, long collectionNumber, String collectionTime, String ext) {
+		String fullFileName = String.format("%s-%03d_%s.%s", filename, collectionNumber, collectionTime, ext);
 		return new File(dir, fullFileName);
 	}
 
