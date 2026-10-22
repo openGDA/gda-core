@@ -218,8 +218,10 @@ public class ScanRequestConverter {
 		Set<String> perScanMonitorNames = mappingBean.getPerScanMonitorNames() == null ?
 				new TreeSet<>() : new TreeSet<>(mappingBean.getPerScanMonitorNames());
 	    if (mappingStageInfo.getBeamSize() != null) {
+	    	logger.info("Adding beamsize {}", mappingStageInfo.getBeamSize());
 	    	perScanMonitorNames.add(mappingStageInfo.getBeamSize());
 	    }
+    	logger.info("Got monitors {}", perScanMonitorNames);
 		scanRequest.setMonitorNamesPerScan(perScanMonitorNames);
 	}
 

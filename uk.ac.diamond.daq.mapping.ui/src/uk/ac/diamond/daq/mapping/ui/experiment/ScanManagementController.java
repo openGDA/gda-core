@@ -391,6 +391,7 @@ public class ScanManagementController extends AbstractMappingController {
 			scanRequest.setFilePath(filePath.get());
 		}
 		scanBean.setScanRequest(scanRequest);
+		logger.info("Mapping bean is {}", mappingBean);
 		return scanBean;
 	}
 
@@ -439,6 +440,7 @@ public class ScanManagementController extends AbstractMappingController {
 
 		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
 		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
+
 		mappingBean.setPerScanMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_SCAN));
 	}
 
