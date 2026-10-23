@@ -59,6 +59,8 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 	private ISubscriber<EventListener> procSubscriber;
 	private ISubscriber<EventListener> fileSubscriber;
 	private ISubscriber<EventListener> fileServiceSubscriber;
+	private ISubscriber<EventListener> externalFileServiceSubscriber;
+	private ISubscriber<EventListener> externalProcessingServiceSubscriber;
 	
 	private IBeanListener<Map<String, Object>> scanListener;
 	private IBeanListener<Map<String, Object>> operationListener;
@@ -114,6 +116,12 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 		if (LocalProperties.get(LocalProperties.GDA_MESSAGE_BROKER_IMPL, "activemq").equals("rabbitmq")) {
 			fileServiceSubscriber = eventService.createAMQPSubscriber(uri, GDA_SCAN_TOPIC);
 			fileServiceSubscriber.addListener(scanListener);
+			
+			externalFileServiceSubscriber = eventService.createAMQPSubscriber(uri, EXTERNAL_FILE_TOPIC);
+			externalFileServiceSubscriber.addListener(fileListener);
+			
+			externalProcessingServiceSubscriber = eventService.createAMQPSubscriber(uri, PROCESSING_TOPIC);
+			externalProcessingServiceSubscriber.addListener(operationListener);
 		}
 		attached = true;
 		
@@ -170,6 +178,26 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 				logger.error("Could not disconnect subscriber to file topic", e);
 			}
 			fileServiceSubscriber = null;
+		}
+		
+		if (externalFileServiceSubscriber != null) {
+			if (fileListener != null) externalFileServiceSubscriber.removeListener(fileListener);
+			try {
+				externalFileServiceSubscriber.disconnect();
+			} catch (EventException e) {
+				logger.error("Could not disconnect subscriber to file topic", e);
+			}
+			externalFileServiceSubscriber = null;
+		}
+		
+		if (externalProcessingServiceSubscriber != null) {
+			if (fileListener != null) externalProcessingServiceSubscriber.removeListener(operationListener);
+			try {
+				externalProcessingServiceSubscriber.disconnect();
+			} catch (EventException e) {
+				logger.error("Could not disconnect subscriber to processing topic", e);
+			}
+			externalProcessingServiceSubscriber = null;
 		}
 		attached = false;
 	}
