@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +122,7 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 
 	protected XanesElementsList elementAndEdgesList;
 	private XanesElementsList linesToTrackList;
+	private boolean mouseScrollEnabled = true;
 
 	private GridData gridData;
 
@@ -168,6 +170,7 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		final IObservableValue<EdgeToEnergy> edgeComboObservable = elementsAndEdgeCombo.getObservableValue();
 		final IObservableValue<EdgeToEnergy> edgeModelObservable = PojoProperties.value("edgeToEnergy", EdgeToEnergy.class).observe(scanParameters);
 		dataBindingContext.bindValue(edgeComboObservable, edgeModelObservable);
+		setMouseScrollListener(elementsAndEdgeCombo.getCombo());
 		return elementsAndEdgeCombo;
 	}
 
@@ -180,6 +183,7 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		energyOffsetSpinner.setMaximum(MAX_EV_ENERGY_OFFSET);
 		energyOffsetSpinner.setIncrement(1);
 		energyOffsetSpinner.setSelection(0);
+		setMouseScrollListener(energyOffsetSpinner);
 	}
 
 	private void createLinesToTrackSection() {
@@ -201,6 +205,9 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 		linesCombo.getCombo().setLayoutData(gridData);
 		linesCombo.getCombo().setToolTipText("Select XRF line");
 		linesCombo.setContentProvider(ArrayContentProvider.getInstance());
+
+		setMouseScrollListener(elementsCombo.getCombo());
+		setMouseScrollListener(linesCombo.getCombo());
 
 		final IObservableValue<LineToTrack> linesComboObservable = ViewerProperties.singleSelection(LineToTrack.class).observe(linesCombo);
 		final IObservableValue<LineToTrack> linesModelObservable = PojoProperties.value("lineToTrack", LineToTrack.class).observe(scanParameters);
@@ -240,6 +247,10 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 				linesCombo.setSelection(null);
 			}
 		}));
+	}
+
+	protected void setMouseScrollListener(Widget widget) {
+		widget.addListener(SWT.MouseVerticalWheel, ev -> ev.doit = mouseScrollEnabled);
 	}
 
 	protected Composite createComposite(Composite parent, int numColumns) {
@@ -353,6 +364,14 @@ public class XanesParametersSection extends AbstractHideableMappingSection {
 
 	public void setLinesToTrackList(XanesElementsList linesToTrackList) {
 		this.linesToTrackList = linesToTrackList;
+	}
+
+	public boolean isMouseScrollEnabled() {
+		return mouseScrollEnabled;
+	}
+
+	public void setMouseScrollEnabled(boolean mouseScrollEnabled) {
+		this.mouseScrollEnabled = mouseScrollEnabled;
 	}
 
 }
