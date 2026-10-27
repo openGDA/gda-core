@@ -21,7 +21,6 @@ package gda.device.scannable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.IXesSpectrometerScannable;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IXesSpectrometerScannable.class)
@@ -96,6 +96,11 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 		Map<Scannable, Double> positions = new LinkedHashMap<>();
 		// x, y values are the same for each analyser,
 		for(var entry : crystalList) {
+			// skip if the analyser is not set to be moved
+			if (!entry.isAllowedToMove()) {
+				continue;
+			}
+
 			positions.put(entry.getxMotor(), analyserPosition[0]);
 			positions.put(entry.getyMotor(), analyserPosition[1]);
 
@@ -123,28 +128,31 @@ public class JohannSpectrometer extends XesSpectrometerScannableBase {
 		return positions;
 	}
 
-	/**
-	 * Determine Bragg angle from height of central analyser.
-	 */
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		Optional<XesSpectrometerCrystal> centreCrystal = crystalList.stream().filter(cryst -> cryst.getHorizontalIndex() == 0).findFirst();
-		if (centreCrystal.isEmpty()) {
-			throw new DeviceException("Could not determine height - centre analyser not found");
+		return getBraggAngleFromDetectorRot();
+	}
+
+	/**
+	 * Determine Bragg angle from rotation of the detector
+	 * (i.e. from : detector rotation = Bragg angle - 90)
+	 * @return Bragg angle [degrees]
+	 * @throws DeviceException
+	 */
+	private double getBraggAngleFromDetectorRot() throws DeviceException {
+		double[] positions = ScannableUtils.getCurrentPositionArray(detectorGroup);
+		double detRot = positions[2]; // braggAngle - 90
+		double braggAngle =  detRot + 90;
+
+		// throw exception and print message if Bragg angle is invalid
+		if (braggAngle < minTheta || braggAngle > maxTheta) {
+			String msg = String.format(
+					"Current motor rotation (%.2f) deg) produces Bragg angle %.2f deg that is out of valid range! (%.1f ... %.1f deg)",
+					detRot, braggAngle, minTheta, maxTheta);
+			InterfaceProvider.getTerminalPrinter().print(msg);
+			throw new DeviceException(msg);
 		}
-
-		double height = extractDouble(centreCrystal.get().getyMotor().getPosition());
-		// height = radius*sin(2*braggAngle)*0.5
-		double sinTwoTheta = height*2/radius;
-
-		// Check value is not too large
-		if (Math.abs(sinTwoTheta) > 1) {
-			throw new DeviceException("Cannot compute bragg angle for height "+height+". Value should be <0.5 Rowland circle radius ("+radius*0.5+")");
-
-		}
-		double twoTheta = Math.toDegrees(Math.asin(sinTwoTheta));
-		// Ensure Bragg angle is > 45 degrees
-		return 90-twoTheta*0.5;
+		return braggAngle;
 	}
 
 	/**
