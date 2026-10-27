@@ -126,10 +126,6 @@ public class ZebraQexafsTest {
 			return stepSize;
 		}
 
-		public double getDesiredSpeed() {
-			return desiredSpeed;
-		}
-
 		public double getRunupPosition() {
 			return runupPosition;
 		}

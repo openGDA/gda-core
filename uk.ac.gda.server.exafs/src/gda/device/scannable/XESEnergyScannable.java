@@ -98,15 +98,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		double energy = XesUtils.getFluoEnergy(extractDouble(xes.getPosition()), getMaterialType(), getCrystalCut());
-		if(energy<100000){
-			String en = String.valueOf(energy);
-			if(en.length()>8){
-				return Double.parseDouble(en.substring(0,7));
-			}
-			return energy;
-		}
-		return 0;
+		return convertAngleToEnergy(extractDouble(xes.getPosition()));
 	}
 
 	private double extractDouble(Object position) {
